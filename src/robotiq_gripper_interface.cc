@@ -46,7 +46,7 @@ static std::string PRESET_RESPONSE = "091003E800030130";
 struct RobotiqGripperInterface::Implementation {
   Implementation();
   bool is_connected{false};
-  asio::io_service m_io_service;
+  boost::asio::io_context m_io_context;
   asio::serial_port m_serial;
   std::size_t m_timeout_ms;
   double m_scale_alpha;
@@ -54,7 +54,7 @@ struct RobotiqGripperInterface::Implementation {
 };
 
 RobotiqGripperInterface::Implementation::Implementation()
-    : m_serial(m_io_service), m_timeout_ms{DEFAULT_RECEIVE_TIMEOUT_MS} {}
+    : m_io_context(), m_serial(m_io_context), m_timeout_ms{DEFAULT_RECEIVE_TIMEOUT_MS} {}
 
 RobotiqGripperInterface::RobotiqGripperInterface()
     : m_impl{std::make_unique<Implementation>()} {}
