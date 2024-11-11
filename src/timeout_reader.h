@@ -33,6 +33,7 @@ class TimeoutReader {
   void timeout(const system::error_code& error);
   asio::serial_port& m_serial;
   std::size_t m_timeout_ms;
+  boost::asio::io_context m_io_context;
   asio::deadline_timer m_timer;
   bool m_read_error;
 };

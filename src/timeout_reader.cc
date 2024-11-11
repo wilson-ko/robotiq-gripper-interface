@@ -19,9 +19,10 @@
 namespace robotiq {
 
 TimeoutReader::TimeoutReader(asio::serial_port& serial, std::size_t timeout_ms)
-    : m_serial(serial),
+    : m_io_context(),
+      m_serial(serial),
       m_timeout_ms(timeout_ms),
-      m_timer(serial.get_io_service()),
+      m_timer(m_io_context),
       m_read_error{true} {}
 
 bool TimeoutReader::read_char(char& c) {
@@ -29,7 +30,7 @@ bool TimeoutReader::read_char(char& c) {
 
   // After a timeout & cancel it seems we need
   // to do a reset for subsequent reads to work.
-  m_serial.get_io_service().reset();
+  m_io_context.reset();
 
   // Asynchronously read 1 character.
   boost::asio::async_read(
@@ -43,7 +44,7 @@ bool TimeoutReader::read_char(char& c) {
 
   // This will block until a character is read
   // or until it is cancelled.
-  m_serial.get_io_service().run();
+  m_io_context.run();
 
   if (m_read_error) {
     c = '\0';
