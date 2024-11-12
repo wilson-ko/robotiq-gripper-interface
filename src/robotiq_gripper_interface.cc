@@ -38,7 +38,6 @@ static std::string PRESET_ACTIVATE = "091003E800030601000000000072E1";
 // and a postfix to set max current and velocity.  The word is ended with a CRC check on
 // the unique message.
 static std::string PRESET_POSITION_PREFIX = "091003E8000306090000";
-static std::string PRESET_POSITION_POSTFIX = "FFFF";
 
 // Expected response for preset messages
 static std::string PRESET_RESPONSE = "091003E800030130";
@@ -167,6 +166,10 @@ bool RobotiqGripperInterface::set_gripper_position(double position, bool blockin
   return set_raw_gripper_position(position_to_word(position), blocking);
 }
 
+bool RobotiqGripperInterface::set_gripper_position(double position, double speed, double force, bool blocking) {
+  return set_raw_gripper_position(position_to_word(position), blocking);
+}
+
 GripperFeedback RobotiqGripperInterface::get_feedback() {
   GripperFeedback feedback;
   if (not m_impl->is_connected) {
@@ -255,6 +258,10 @@ void RobotiqGripperInterface::set_timeout(std::size_t timeout_ms) {
 std::size_t RobotiqGripperInterface::get_timeout() const { return m_impl->m_timeout_ms; }
 
 bool RobotiqGripperInterface::set_raw_gripper_position(uint8_t position, bool blocking) {
+  return set_raw_gripper_position(position, 0xFF, 0xFF, blocking);
+}
+
+bool RobotiqGripperInterface::set_raw_gripper_position(uint8_t position, uint8_t speed, uint8_t force, bool blocking) {
   if (not m_impl->is_connected) {
     std::cout << "[RobotiqGripperInterface] Warning: set_raw_gripper_position() ignored "
                  "since the gripper is not connected\n";
@@ -263,8 +270,10 @@ bool RobotiqGripperInterface::set_raw_gripper_position(uint8_t position, bool bl
 
   // Create the message and append the modbus CRC check
   std::string message =
-      PRESET_POSITION_PREFIX + uint8_to_hex(position) + PRESET_POSITION_POSTFIX;
+    PRESET_POSITION_PREFIX + uint8_to_hex(position) + uint8_to_hex(speed) + uint8_to_hex(force);
   message += crc16_modbus(message);
+
+  std::cout << "speed " << uint8_to_hex(speed) << " speed " << unsigned(speed) << "\n";
 
   if (blocking) {
     std::string r = write_read(m_impl->m_serial, message, m_impl->m_timeout_ms);

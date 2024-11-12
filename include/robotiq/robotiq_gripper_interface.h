@@ -121,6 +121,15 @@ class RobotiqGripperInterface {
   bool set_gripper_position(double position, bool blocking = true);
 
   /**
+   * @brief Sets the gripper position with speed and force
+   *
+   * @param[in]  position  Desired position, scaled by the scale factors
+   * @param[in]  blocking  Waits to return until the gripper has completed the action.
+   * @return True if succeeded.
+   */
+  bool set_gripper_position(double position, double speed, double force, bool blocking = true);
+
+  /**
    * @brief Returns the gripper feedback.
    */
   GripperFeedback get_feedback();
@@ -136,8 +145,11 @@ class RobotiqGripperInterface {
   std::size_t get_timeout() const;
 
  private:
-  /** Writes the raw word (unscaled) to position */
-  bool set_raw_gripper_position(uint8_t position, bool blocking);
+  /** Writes the raw word (unscaled) to position at highest speed and force */
+  bool set_raw_gripper_position(uint8_t position, bool blocking=true);
+
+  /** Writes the raw word (unscaled) to position, speed and force*/
+  bool set_raw_gripper_position(uint8_t position, uint8_t speed, uint8_t force, bool blocking=true);
 
   /** Scales the raw word to position */
   double word_to_position(uint8_t word) const;
