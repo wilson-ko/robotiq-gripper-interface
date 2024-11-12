@@ -167,7 +167,12 @@ bool RobotiqGripperInterface::set_gripper_position(double position, bool blockin
 }
 
 bool RobotiqGripperInterface::set_gripper_position(double position, double speed, double force, bool blocking) {
-  return set_raw_gripper_position(position_to_word(position), blocking);
+  return set_raw_gripper_position(
+    position_to_word(position),
+    position_to_word(speed),
+    position_to_word(force),
+    blocking
+  );
 }
 
 GripperFeedback RobotiqGripperInterface::get_feedback() {
@@ -273,7 +278,7 @@ bool RobotiqGripperInterface::set_raw_gripper_position(uint8_t position, uint8_t
     PRESET_POSITION_PREFIX + uint8_to_hex(position) + uint8_to_hex(speed) + uint8_to_hex(force);
   message += crc16_modbus(message);
 
-  std::cout << "speed " << uint8_to_hex(speed) << " speed " << unsigned(speed) << "\n";
+  std::cout << "speed " << uint8_to_hex(speed) << " speed " << unsigned(speed) << std::endl;
 
   if (blocking) {
     std::string r = write_read(m_impl->m_serial, message, m_impl->m_timeout_ms);
@@ -289,7 +294,7 @@ bool RobotiqGripperInterface::set_raw_gripper_position(uint8_t position, uint8_t
   } else {
     write(m_impl->m_serial, message);
   }
-  
+
   return true;
 }
 
