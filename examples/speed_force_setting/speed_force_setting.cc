@@ -20,10 +20,8 @@
 std::string port = robotiq::DEFAULT_PORT;
 std::size_t baud = robotiq::DEFAULT_BAUD;
 
-// Define the scale factors.  Here we map the position such that 0.086 is
+// Define the scale factors.  Here we map the position such that 100 is
 // fully open and 0 is fully closed.
-//const double alpha = -0.086;
-//const double beta = 0.086;
 const double alpha = 100.0;
 const double beta = 0.0;
 
@@ -66,23 +64,31 @@ int main(int argc, char* argv[]) {
   }
   std::cout << "Gripper is activated!\n";
 
-  // Set the gripper to several positions
-  //std::cout << "Move to 0.043: " << gripper.set_gripper_position(0.043) << "\n";
-  //print_feedback(gripper.get_feedback());
-
-  //std::cout << "Move to 0: " << gripper.set_gripper_position(0) << "\n";
-  //print_feedback(gripper.get_feedback());
-
-  //std::cout << "Move to 0.086: " << gripper.set_gripper_position(0.086) << "\n";
-  //print_feedback(gripper.get_feedback());
-
-  std::cout << "Move to 50%: " << gripper.set_gripper_position(50.0, 50.0, 100.0) << "\n";
+  // Close gripper with no force
+  std::cout << "Move to 60% with no force: " << gripper.set_gripper_position(60.0, 50.0, 100, false) << "\n";
   print_feedback(gripper.get_feedback());
+  std::cout << "Press Enter to continue..." << std::endl;
+  std::cin.get();
 
-  std::cout << "Move to 100%: " << gripper.set_gripper_position(100.0, 50.0, 100.0) << "\n";
+  // Hold the position but change the force. Grip at 50%
+  std::cout << "Grip 50% tighter: " << gripper.set_gripper_position(61.0, 50.0, 50.0, false) << "\n";
   print_feedback(gripper.get_feedback());
+  std::cout << "Press Enter to continue..." << std::endl;
+  std::cin.get();
 
-  std::cout << "Move to 0%: " << gripper.set_gripper_position(0.0, 50.0, 100.0) << "\n";
+  // Hold the position but change the force. Grip tighter at 100%
+  std::cout << "Grip tightly " << gripper.set_gripper_position(62.0, 50.0, 0.0, false) << "\n";
+  print_feedback(gripper.get_feedback());
+  std::cout << "Press Enter to continue..." << std::endl;
+  std::cin.get();
+
+  // Hold the position but change the force. Relax it to 0%
+  std::cout << "Relax grip" << gripper.set_gripper_position(62.0, 50.0, 100.0, false) << "\n";
+  print_feedback(gripper.get_feedback());
+  std::cout << "Press Enter to continue..." << std::endl;
+  std::cin.get();
+
+  std::cout << "Open gripper" << gripper.set_gripper_position(0.0, 50.0, 100.0, false) << "\n";
   print_feedback(gripper.get_feedback());
 
   return 0;
