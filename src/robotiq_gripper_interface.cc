@@ -28,7 +28,13 @@ using namespace boost;
 namespace robotiq {
 
 // Messages for reading holding registers (FC03 from the manual)
-static std::string READ_FEEDBACK = "090307D00003040E";
+//static std::string READ_FEEDBACK = "090307D00003040E";
+
+/**
+ * From 2021 on, FC03 has been removed and only FC04 remains to read all inputs.
+ * Comment this line and uncomment the above one if you are using a model from before 2021.
+ */
+static std::string READ_FEEDBACK = "090407D00003B1CE";
 
 // Messages for preseting multiple registers (FC16 from the manual)
 static std::string PRESET_RESET = "091003E80003060000000000007330";
@@ -101,7 +107,7 @@ bool RobotiqGripperInterface::reset(bool blocking) {
     return m_impl->is_connected;
   }
 
-  std::string r = write_read(m_impl->m_serial, PRESET_RESET, m_impl->m_timeout_ms);
+  std::string r = write_read(m_impl->m_serial, m_impl->m_io_context, PRESET_RESET, m_impl->m_timeout_ms);
   if (r.compare(PRESET_RESPONSE) != 0) {
     return false;
   }
@@ -136,7 +142,7 @@ bool RobotiqGripperInterface::activate(bool blocking) {
     return m_impl->is_connected;
   }
 
-  std::string r = write_read(m_impl->m_serial, PRESET_ACTIVATE, m_impl->m_timeout_ms);
+  std::string r = write_read(m_impl->m_serial, m_impl->m_io_context, PRESET_ACTIVATE, m_impl->m_timeout_ms);
   if (r.compare(PRESET_RESPONSE) != 0) {
     return false;
   }
@@ -176,7 +182,8 @@ GripperFeedback RobotiqGripperInterface::get_feedback() {
     return feedback;
   }
 
-  std::string r = write_read(m_impl->m_serial, READ_FEEDBACK, m_impl->m_timeout_ms);
+  std::string r = write_read(m_impl->m_serial, m_impl->m_io_context, READ_FEEDBACK, m_impl->m_timeout_ms);
+
   if (r.size() != 22) {
     std::cout << "[RobotiqGripperInterface] Warning: get_feedback() returned an "
                  "unexpected number of bytes, consider increasing the timeout setting\n";
@@ -267,7 +274,7 @@ bool RobotiqGripperInterface::set_raw_gripper_position(uint8_t position, bool bl
   message += crc16_modbus(message);
 
   if (blocking) {
-    std::string r = write_read(m_impl->m_serial, message, m_impl->m_timeout_ms);
+    std::string r = write_read(m_impl->m_serial, m_impl->m_io_context, message, m_impl->m_timeout_ms);
     if (r.compare(PRESET_RESPONSE) != 0) {
       return false;
     }

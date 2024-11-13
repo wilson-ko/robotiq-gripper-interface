@@ -18,11 +18,12 @@
 
 namespace robotiq {
 
-TimeoutReader::TimeoutReader(asio::serial_port& serial, std::size_t timeout_ms)
-    : m_io_context(),
+TimeoutReader::TimeoutReader(asio::serial_port& serial, boost::asio::io_context& io_context, std::size_t timeout_ms)
+    :
+      m_io_context(io_context),
       m_serial(serial),
       m_timeout_ms(timeout_ms),
-      m_timer(m_io_context),
+      m_timer(io_context),
       m_read_error{true} {}
 
 bool TimeoutReader::read_char(char& c) {

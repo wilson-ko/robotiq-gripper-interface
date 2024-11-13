@@ -25,15 +25,15 @@ namespace robotiq {
 /** Reads serial messages with a dedicated timeout */
 class TimeoutReader {
  public:
-  TimeoutReader(asio::serial_port& serial, std::size_t timeout_ms);
+  TimeoutReader(asio::serial_port& serial, boost::asio::io_context& io_context, std::size_t timeout_ms);
   bool read_char(char& c);
 
  private:
   void read_complete(const system::error_code& error, std::size_t bytes);
   void timeout(const system::error_code& error);
+  asio::io_context& m_io_context;
   asio::serial_port& m_serial;
   std::size_t m_timeout_ms;
-  boost::asio::io_context m_io_context;
   asio::deadline_timer m_timer;
   bool m_read_error;
 };

@@ -21,13 +21,13 @@
 
 namespace robotiq {
 
-std::string write_read(boost::asio::serial_port& serial, const std::string& message,
+std::string write_read(boost::asio::serial_port& serial, boost::asio::io_context& io_context, const std::string& message,
                        std::size_t timeout_ms) {
   // write
   write(serial, message);
 
   // read
-  TimeoutReader reader(serial, timeout_ms);
+  TimeoutReader reader(serial, io_context, timeout_ms);
   char c;
   std::string result;
   while (reader.read_char(c) && c != '\n') {
