@@ -13,7 +13,6 @@
 // limitations under the License.
 
 #include "robotiq/robotiq_gripper_interface.h"
-
 #include <iostream>
 
 // Define the communication parameters
@@ -41,10 +40,13 @@ bool parse_args(int argc, char* argv[]) {
 }
 
 void print_feedback(const robotiq::GripperFeedback& feedback) {
+  std::cout << "\n\n";
+  std::cout << "===============================\n";
   std::cout << "Gripper feedback:\n";
   std::cout << "  commanded_position:     " << feedback.commanded_position << "\n";
   std::cout << "  position:               " << feedback.position << "\n";
   std::cout << "  current:                " << feedback.current << "\n";
+  std::cout << "===============================\n";
 }
 
 int main(int argc, char* argv[]) {
@@ -65,30 +67,31 @@ int main(int argc, char* argv[]) {
   std::cout << "Gripper is activated!\n";
 
   // Close gripper with no force
-  std::cout << "Move to 60% with no force: " << gripper.set_gripper_position(60.0, 50.0, 100, false) << "\n";
+  std::cout << "Move to 60% with no force: " << gripper.set_gripper_position(60.0, 50.0, 100) << "\n";
   print_feedback(gripper.get_feedback());
-  std::cout << "Press Enter to continue..." << std::endl;
+  std::cout << "\n\nPress Enter to continue...\n\n" << std::endl;
   std::cin.get();
 
   // Hold the position but change the force. Grip at 50%
-  std::cout << "Grip 50% tighter: " << gripper.set_gripper_position(61.0, 50.0, 50.0, false) << "\n";
+
+  std::cout << "Grip 50% tighter: " << gripper.set_gripper_position(61.0, 50.0, 50.0) << "\n";
   print_feedback(gripper.get_feedback());
-  std::cout << "Press Enter to continue..." << std::endl;
+  std::cout << "\n\nPress Enter to continue...\n\n" << std::endl;
   std::cin.get();
 
   // Hold the position but change the force. Grip tighter at 100%
-  std::cout << "Grip tightly " << gripper.set_gripper_position(62.0, 50.0, 0.0, false) << "\n";
+  std::cout << "Grip tightly " << gripper.set_gripper_position(62.0, 50.0, 0.0) << "\n";
   print_feedback(gripper.get_feedback());
-  std::cout << "Press Enter to continue..." << std::endl;
+  std::cout << "\n\nPress Enter to continue...\n\n" << std::endl;
   std::cin.get();
 
   // Hold the position but change the force. Relax it to 0%
-  std::cout << "Relax grip" << gripper.set_gripper_position(62.0, 50.0, 100.0, false) << "\n";
+  std::cout << "Relax grip" << gripper.set_gripper_position(61.0, 50.0, 100.0) << "\n";
   print_feedback(gripper.get_feedback());
-  std::cout << "Press Enter to continue..." << std::endl;
+  std::cout << "\n\nPress Enter to continue...\n\n" << std::endl;
   std::cin.get();
 
-  std::cout << "Open gripper" << gripper.set_gripper_position(0.0, 50.0, 100.0, false) << "\n";
+  std::cout << "Open gripper" << gripper.set_gripper_position(0.0, 50.0, 100.0) << "\n";
   print_feedback(gripper.get_feedback());
 
   return 0;

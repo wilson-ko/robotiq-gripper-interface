@@ -285,8 +285,6 @@ bool RobotiqGripperInterface::set_raw_gripper_position(uint8_t position, uint8_t
     PRESET_POSITION_PREFIX + uint8_to_hex(position) + uint8_to_hex(speed) + uint8_to_hex(force);
   message += crc16_modbus(message);
 
-  std::cout << "speed " << uint8_to_hex(speed) << " speed " << unsigned(speed) << std::endl;
-
   if (blocking) {
     std::string r = write_read(m_impl->m_serial, m_impl->m_io_context, message, m_impl->m_timeout_ms);
     if (r.compare(PRESET_RESPONSE) != 0) {
