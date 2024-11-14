@@ -45,6 +45,9 @@ static std::string PRESET_ACTIVATE = "091003E800030601000000000072E1";
 // the unique message.
 static std::string PRESET_POSITION_PREFIX = "091003E8000306090000";
 
+// Preset for simultaneous read/write operations (F23)
+static std::string PRESET_READ_WRITE_PREFIX = "091707D0000303E8000306090000";
+
 // Expected response for preset messages
 static std::string PRESET_RESPONSE = "091003E800030130";
 
@@ -181,23 +184,22 @@ bool RobotiqGripperInterface::set_gripper_position(double position, double speed
   );
 }
 
-GripperFeedback RobotiqGripperInterface::get_feedback() {
-  GripperFeedback feedback;
-  if (not m_impl->is_connected) {
-    std::cout
-        << "[RobotiqGripperInterface] Warning: get_feedback() ignored since the gripper "
-           "is not connected\n";
-    return feedback;
-  }
+std::optional<GripperFeedback> RobotiqGripperInterface::set_and_read_gripper(double position, double speed, double force) {
+  return set_raw_gripper_position(
+    position_to_word(position),
+    position_to_word(speed),
+    position_to_word(force)
+  );
+}
 
-  std::string r = write_read(m_impl->m_serial, m_impl->m_io_context, READ_FEEDBACK, m_impl->m_timeout_ms);
-
+std::optional<GripperFeedback> RobotiqGripperInterface::string_to_feedback(std::string const & r) {
   if (r.size() != 22) {
     std::cout << "[RobotiqGripperInterface] Warning: get_feedback() returned an "
                  "unexpected number of bytes, consider increasing the timeout setting\n";
-    return feedback;
+    return std::nullopt;
   }
 
+  GripperFeedback feedback;
   // Note: bit masking is derived from the tables in Section 4.4 of the manual.
   unsigned char byte0 = *hex_to_bin(r.substr(6, 2)).c_str();
   feedback.status.gobj = static_cast<ObjectStatus>((byte0 & 0xC0) >> 6);      // bits 7-6
@@ -263,6 +265,22 @@ GripperFeedback RobotiqGripperInterface::get_feedback() {
   return feedback;
 }
 
+GripperFeedback RobotiqGripperInterface::get_feedback() {
+  if (not m_impl->is_connected) {
+    std::cout
+        << "[RobotiqGripperInterface] Warning: get_feedback() ignored since the gripper "
+           "is not connected\n";
+    return GripperFeedback();
+  }
+
+  std::optional<GripperFeedback> feedback = string_to_feedback(write_read(m_impl->m_serial, m_impl->m_io_context, READ_FEEDBACK, m_impl->m_timeout_ms));
+  if (!feedback) {
+    return GripperFeedback();
+  }
+
+  return *feedback;
+}
+
 void RobotiqGripperInterface::set_timeout(std::size_t timeout_ms) {
   m_impl->m_timeout_ms = timeout_ms;
 }
@@ -301,6 +319,20 @@ bool RobotiqGripperInterface::set_raw_gripper_position(uint8_t position, uint8_t
   }
 
   return true;
+}
+
+std::optional<GripperFeedback> RobotiqGripperInterface::set_raw_gripper_position(uint8_t position, uint8_t speed, uint8_t force) {
+  if (not m_impl->is_connected) {
+    std::cout << "[RobotiqGripperInterface] Warning: set_raw_gripper_position() ignored "
+                 "since the gripper is not connected\n";
+    return std::nullopt;
+  }
+
+  // Create the message and append the modbus CRC check
+  std::string message = PRESET_READ_WRITE_PREFIX + uint8_to_hex(position) + uint8_to_hex(speed) + uint8_to_hex(force);
+  message += crc16_modbus(message);
+
+  return string_to_feedback(write_read(m_impl->m_serial, m_impl->m_io_context, message, m_impl->m_timeout_ms));
 }
 
 double RobotiqGripperInterface::word_to_position(uint8_t word) const {

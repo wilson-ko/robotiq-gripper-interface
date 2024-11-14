@@ -14,6 +14,7 @@
 
 #pragma once
 
+#include <optional>
 #include <cstdint>
 #include <memory>
 #include <string>
@@ -130,6 +131,17 @@ class RobotiqGripperInterface {
   bool set_gripper_position(double position, double speed, double force, bool blocking = true);
 
   /**
+   * @brief Sets the gripper position with speed and force and immediate;y reads out the input registers.
+   *
+   * @param[in]  position  Desired position, scaled by the scale factors
+   * @param[in]  speed     Desired max speed, scaled by the scale factors
+   * @param[in]  force     Desired max force, scaled by the scale factors
+   * @param[in]  blocking  Waits to return until the gripper has completed the action.
+   * @return True if succeeded.
+   */
+  std::optional<GripperFeedback> set_and_read_gripper(double position, double speed, double force);
+
+  /**
    * @brief Returns the gripper feedback.
    */
   GripperFeedback get_feedback();
@@ -149,7 +161,13 @@ class RobotiqGripperInterface {
   bool set_raw_gripper_position(uint8_t position, bool blocking=true);
 
   /** Writes the raw word (unscaled) to position, speed and force*/
-  bool set_raw_gripper_position(uint8_t position, uint8_t speed, uint8_t force, bool blocking=true);
+  bool set_raw_gripper_position(uint8_t position, uint8_t speed, uint8_t force, bool blocking);
+
+  /** Transforms a sgtring from the input registers into a GripperFeedback */
+  std::optional<GripperFeedback> string_to_feedback(std::string const & r);
+
+  /** Writes the raw word (unscaled) to position, speed and force and immediately return the GripperFeedback*/
+  std::optional<GripperFeedback> set_raw_gripper_position(uint8_t position, uint8_t speed, uint8_t force);
 
   /** Scales the raw word to position */
   double word_to_position(uint8_t word) const;
