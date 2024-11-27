@@ -20,6 +20,24 @@
 #include "src/timeout_reader.h"
 
 namespace robotiq {
+// Temporary hack to prevent reading serial junk.
+std::string read_registers(boost::asio::serial_port& serial, boost::asio::io_context& io_context, const std::string& message,
+                       std::size_t timeout_ms) {
+  // write
+  write(serial, message);
+
+  // read
+  TimeoutReader reader(serial, io_context, timeout_ms);
+  char c;
+  std::string result;
+
+  size_t i = 0;
+  while (reader.read_char(c) && i < 22) {
+    result += c;
+    i++;
+  }
+  return bin_to_hex(result);
+}
 
 std::string write_read(boost::asio::serial_port& serial, boost::asio::io_context& io_context, const std::string& message,
                        std::size_t timeout_ms) {

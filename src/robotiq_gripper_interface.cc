@@ -190,7 +190,7 @@ GripperFeedback RobotiqGripperInterface::get_feedback() {
     return feedback;
   }
 
-  std::string r = write_read(m_impl->m_serial, m_impl->m_io_context, READ_FEEDBACK, m_impl->m_timeout_ms);
+  std::string r = read_registers(m_impl->m_serial, m_impl->m_io_context, READ_FEEDBACK, m_impl->m_timeout_ms);
 
   if (r.size() != 22) {
     std::cout << "[RobotiqGripperInterface] Warning: get_feedback() returned an "

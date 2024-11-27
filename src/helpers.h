@@ -25,6 +25,9 @@ namespace robotiq {
 std::string write_read(boost::asio::serial_port& serial, boost::asio::io_context& io_context, const std::string& message,
                           std::size_t timeout_ms);
 
+std::string read_registers(boost::asio::serial_port& serial, boost::asio::io_context& io_context, const std::string& message,
+                          std::size_t timeout_ms);
+
 /** Writes a message to the serial port and does not wait for a response*/
 void write(boost::asio::serial_port& serial, const std::string& message);
 
