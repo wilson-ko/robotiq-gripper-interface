@@ -48,6 +48,8 @@ static std::string PRESET_POSITION_PREFIX = "091003E8000306090000";
 // Expected response for preset messages
 static std::string PRESET_RESPONSE = "091003E800030130";
 
+static std::string STOP = "091003E80001020100E428";
+
 struct RobotiqGripperInterface::Implementation {
   Implementation();
   bool is_connected{false};
@@ -302,6 +304,22 @@ bool RobotiqGripperInterface::set_raw_gripper_position(uint8_t position, uint8_t
 
   return true;
 }
+
+bool RobotiqGripperInterface::stop_gripper() {
+  if (not m_impl->is_connected) {
+    std::cout << "[RobotiqGripperInterface] Warning: stop() ignored "
+                 "since the gripper is not connected\n";
+    return false;
+  }
+
+  // Create the message and append the modbus CRC check
+  std::string message = STOP;
+
+  write_read(m_impl->m_serial, m_impl->m_io_context, message, m_impl->m_timeout_ms);
+
+  return true;
+}
+
 
 double RobotiqGripperInterface::word_to_position(uint8_t word) const {
   return (m_impl->m_scale_alpha / 255.0) * static_cast<double>(word) + m_impl->m_scale_beta;

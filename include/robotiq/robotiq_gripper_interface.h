@@ -134,6 +134,8 @@ class RobotiqGripperInterface {
    */
   GripperFeedback get_feedback();
 
+  bool stop_gripper();
+
   /**
    * @brief Sets the time out in ms for receiving messages from the gripper.
    */
