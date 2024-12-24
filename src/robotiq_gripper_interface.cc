@@ -196,7 +196,7 @@ GripperFeedback RobotiqGripperInterface::get_feedback() {
 
   if (r.size() != 22) {
     std::cout << "[RobotiqGripperInterface] Warning: get_feedback() returned an "
-                 "unexpected number of bytes, consider increasing the timeout setting\n";
+                 "unexpected number " << r.size() << " of bytes, consider increasing the timeout setting. " << r << " " << "\n";
     return feedback;
   }
 
